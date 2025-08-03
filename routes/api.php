@@ -1,0 +1,25 @@
+<?php
+// routes/api.php
+use App\Http\Controllers\Api\GoogleCalendarController;
+use App\Http\Controllers\Api\ContactController;
+use App\Http\Controllers\Api\EventController;
+use App\Http\Controllers\Api\SchoolController;
+use Illuminate\Support\Facades\Route;
+
+Route::prefix('v1')->group(function () {
+    // Public routes
+    Route::get('/school-info', [SchoolController::class, 'info']);
+    Route::get('/events', [EventController::class, 'index']);
+    Route::get('/events/featured', [EventController::class, 'featured']);
+    Route::post('/contact', [ContactController::class, 'store']);
+    
+    // Calendar integration
+    Route::get('/calendar', function () {
+        return response()->json([
+            'success' => true,
+            'calendar_url' => 'https://calendar.google.com/calendar/embed?src=93e6bc2fe2660ddcc925e876ff13dd04394372fc3d48130f6617c431e92dbbd6%40group.calendar.google.com&ctz=America%2FCosta_Rica'
+        ]);
+    });
+
+    Route::get('/calendar/events', [GoogleCalendarController::class, 'index']);
+});
