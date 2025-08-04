@@ -37,6 +37,8 @@ class GoogleCalendarService
             return [
                 'id' => $event->getId(),
                 'summary' => $event->getSummary(),
+                'description' => $event->getDescription(),
+                'location' => $event->getLocation(),
                 'start' => $event->getStart()->getDateTime() ?: $event->getStart()->getDate(),
                 'end' => $event->getEnd()->getDateTime() ?: $event->getEnd()->getDate(),
             ];
