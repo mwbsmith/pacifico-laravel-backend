@@ -22,33 +22,73 @@ class GoogleCalendarService
         $this->service = new Google_Service_Calendar($client);
     }
 
-    public function getUpcomingEvents($maxResults = 6)
+    public function getUpcomingEvents($maxResults = 20)
     {
-        $params = [
-            'maxResults' => $maxResults,
-            'orderBy' => 'startTime',
-            'singleEvents' => true,
-            'timeMin' => now()->toRfc3339String(),
+    $params = [
+        'maxResults' => $maxResults,
+        'orderBy' => 'startTime',
+        'singleEvents' => true,
+        'timeMin' => now()->toRfc3339String(),
+    ];
+
+    $events = $this->service->events->listEvents($this->calendarId, $params);
+
+    return collect($events->getItems())->map(function ($event) {
+        $startObj = $event->getStart();
+        $endObj = $event->getEnd();
+
+        $startDateTime = $startObj->getDateTime();
+        $startDate = $startObj->getDate();
+
+        $endDateTime = $endObj->getDateTime();
+        $endDate = $endObj->getDate();
+
+        $isAllDay = is_null($startDateTime);
+
+        if ($isAllDay) {
+            $start = Carbon::parse($startDate)->setTimezone(config('app.timezone'));
+            $end = Carbon::parse($endDate)->setTimezone(config('app.timezone'));
+        } else {
+            $start = Carbon::parse($startDateTime)->setTimezone(config('app.timezone'));
+            $end = Carbon::parse($endDateTime)->setTimezone(config('app.timezone'));
+        }
+
+        return [
+            'id' => $event->getId(),
+            'status' => $event->getStatus(),
+            'summary' => $event->getSummary(),
+            'description' => $event->getDescription(),
+            'location' => $event->getLocation(),
+            'htmlLink' => $event->getHtmlLink(),
+            'created' => $event->getCreated(),
+            'updated' => $event->getUpdated(),
+            'organizer' => $event->getOrganizer(),
+            'creator' => $event->getCreator(),
+            'attendees' => $event->getAttendees(),
+            'hangoutLink' => $event->getHangoutLink(),
+            'recurrence' => $event->getRecurrence(),
+            'recurringEventId' => $event->getRecurringEventId(),
+            'originalStartTime' => $event->getOriginalStartTime(),
+            'visibility' => $event->getVisibility(),
+            'sequence' => $event->getSequence(),
+            'iCalUID' => $event->getICalUID(),
+            'reminders' => $event->getReminders(),
+            'colorId' => $event->getColorId(),
+            'kind' => $event->getKind(),
+            'etag' => $event->getEtag(),
+
+            // Date/time breakdown
+            'isAllDay' => $isAllDay,
+            'startDate' => $start->toDateString(),
+            'startTime' => $isAllDay ? null : $start->format('H:i:s'),
+            'endDate' => $end->toDateString(),
+            'endTime' => $isAllDay ? null : $end->format('H:i:s'),
+            'timeZone'   => $start->getTimezone()->getName(),
+
+            // Full datetime strings for reference
+            'startDateTime' => $isAllDay ? null : $start->toDateTimeString(),
+            'endDateTime' => $isAllDay ? null : $end->toDateTimeString(),
         ];
-
-        $events = $this->service->events->listEvents($this->calendarId, $params);
-
-        return collect($events->getItems())->map(function ($event) {
-            $startRaw = $event->getStart()->getDateTime() ?? $event->getStart()->getDate();
-            $endRaw = $event->getEnd()->getDateTime() ?? $event->getEnd()->getDate();
-
-            // Parse using Carbon and set timezone to app timezone
-            $start = Carbon::parse($startRaw)->setTimezone(config('app.timezone'))->toDateTimeString();
-            $end = Carbon::parse($endRaw)->setTimezone(config('app.timezone'))->toDateTimeString();
-
-            return [
-                'id' => $event->getId(),
-                'summary' => $event->getSummary(),
-                'description' => $event->getDescription(),
-                'location' => $event->getLocation(),
-                'start' => $start,
-                'end' => $end,
-            ];
-        });
-    }
+    });
+}
 }
