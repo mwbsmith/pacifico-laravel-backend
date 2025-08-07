@@ -7,6 +7,10 @@ use App\Http\Controllers\Api\SchoolController;
 use App\Http\Controllers\Api\MessageController;
 use Illuminate\Support\Facades\Route;
 
+/* For email test with MAILGUN */
+use App\Mail\TestEmail;
+use Illuminate\Support\Facades\Mail;
+
 Route::prefix('v1')->group(function () {
     // Public routes
     Route::get('/school-info', [SchoolController::class, 'info']);
@@ -36,4 +40,15 @@ Route::prefix('v1')->group(function () {
         Route::get('/messages', [MessageController::class, 'index'])
              ->middleware(['auth:sanctum']); // Protect admin route
     });
+
+    // TEST EMAIL ROUTE WITH MAILGUN
+    Route::get('/send-test', function () {
+        $recipients = [
+            'mwbsmith@gmail.com',
+            'helene@waldorf.cr',
+        ];
+        Mail::to($recipients)->send(new TestEmail());
+        return 'Email sent';
+    });
+
 });

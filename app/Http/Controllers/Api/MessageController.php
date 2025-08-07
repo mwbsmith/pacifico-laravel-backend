@@ -28,8 +28,8 @@ class MessageController extends Controller
 
             // Send email notification
             
-            // $recipientEmail = config('mail.contact_recipient', 'admin@pacificointernacional.com');
-            // Mail::to($recipientEmail)->send(new ContactMessage($message));
+            $recipientEmail = config('mail.contact_recipient', 'mwbsmith@gmail.com');
+            Mail::to($recipientEmail)->send(new ContactMessage($message));
 
             return response()->json([
                 'success' => true,
