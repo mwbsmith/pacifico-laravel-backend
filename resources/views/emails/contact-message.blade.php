@@ -59,7 +59,7 @@
 
         @if($messageData->phone)
         <div class="field">
-            <div class="label">Phone:</div>
+            <div class="label">Child Age:</div>
             <div class="value">{{ $messageData->phone }}</div>
         </div>
         @endif
