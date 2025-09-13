@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-// use Illuminate\Http\Request;
-use App\Http\Requests\StoreNewsletterSubscriptionRequest;
+use Illuminate\Http\Request;
+// use App\Http\Requests\StoreNewsletterSubscriptionRequest;
 use App\Models\NewsletterSubscription;
 
 class NewsletterSubscriptionController extends Controller
@@ -12,19 +12,27 @@ class NewsletterSubscriptionController extends Controller
     /**
      * Store a new newsletter subscription.
      */
-    public function store(StoreNewsletterSubscriptionRequest $request)
+    public function store(request $request)
     {
-        $validated = NewsletterSubscription::create($request->validated());
+        // $validated = NewsletterSubscription::create($request->validated());
 
         // validate incoming data
+
         /*
+        body: JSON.stringify({
+          full_name: newsletterForm.fullName,
+          email: newsletterForm.email,
+          whatsapp: newsletterForm.whatsapp,
+          mailing_list: newsletterForm.mailingList,
+          */
+        
         $validated = $request->validate([
-            'fullName'   => ['required', 'string', 'max:255'],
+            'full_name'   => ['required', 'string', 'max:255'],
             'email'      => ['required', 'email', 'max:255'],
             'whatsapp'   => ['nullable', 'string', 'max:50'],
-            'mailingList'=> ['boolean'],
+            'mailing_list'=> ['boolean'],
         ]);
-        */
+        
 
         // map camelCase input to snake_case DB fields
         $subscription = NewsletterSubscription::create([
