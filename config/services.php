@@ -34,9 +34,16 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
-
+/*
     'google' => [
         'calendar_id' => env('GOOGLE_CALENDAR_ID'),
+    ],
+*/
+    'google' => [
+        'sa_json'     => env('GOOGLE_SA_JSON', storage_path('app/google-calendar.json')),
+        'calendar_id' => env('GOOGLE_CALENDAR_ID'),
+        // (optional) lock Drive listing to a folder
+        // 'drive_allowed_folder_id' => env('GOOGLE_DRIVE_ALLOWED_FOLDER_ID'),
     ],
 
     'mailgun' => [

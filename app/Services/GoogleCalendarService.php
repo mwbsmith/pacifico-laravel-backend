@@ -8,9 +8,20 @@ use Carbon\Carbon;
 
 class GoogleCalendarService
 {
+    /*
     protected $calendarId;
     protected $service;
+    */
 
+    protected string $calendarId;
+    protected Google_Service_Calendar $service;
+
+    public function __construct(Google_Service_Calendar $service)
+    {
+        $this->calendarId = config('services.google.calendar_id');
+        $this->service = $service;
+    }
+/*
     public function __construct()
     {
         $this->calendarId = config('services.google.calendar_id'); // Define in config/services.php
@@ -21,7 +32,7 @@ class GoogleCalendarService
 
         $this->service = new Google_Service_Calendar($client);
     }
-
+*/
     public function getUpcomingEvents($maxResults = 20)
     {
     $params = [
@@ -92,3 +103,4 @@ class GoogleCalendarService
     });
 }
 }
+

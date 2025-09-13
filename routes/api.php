@@ -1,10 +1,12 @@
 <?php
 // routes/api.php
 use App\Http\Controllers\Api\GoogleCalendarController;
+use App\Http\Controllers\Api\GoogleDriveController;
 use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\EventController;
 use App\Http\Controllers\Api\SchoolController;
 use App\Http\Controllers\Api\MessageController;
+use App\Http\Controllers\Api\NewsletterSubscriptionController;
 use Illuminate\Support\Facades\Route;
 
 /* For email test with MAILGUN */
@@ -28,6 +30,8 @@ Route::prefix('v1')->group(function () {
 
     Route::get('/calendar/events', [GoogleCalendarController::class, 'index']);
 
+    Route::get('/drive/folder/{folderId}', [GoogleDriveController::class, 'index']);
+
     Route::get('/user', function (Request $request) {
         return $request->user();
     })->middleware('auth:sanctum');
@@ -40,6 +44,11 @@ Route::prefix('v1')->group(function () {
         Route::get('/messages', [MessageController::class, 'index'])
              ->middleware(['auth:sanctum']); // Protect admin route
     });
+
+    // Newsletter subscritions
+
+    Route::post('/newsletter-subscriptions', [NewsletterSubscriptionController::class, 'store'])
+    ->name('newsletter-subscriptions.store');
 
     // TEST EMAIL ROUTE WITH MAILGUN
     Route::get('/send-test', function () {
