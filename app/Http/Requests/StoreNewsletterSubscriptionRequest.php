@@ -15,8 +15,8 @@ class StoreNewsletterSubscriptionRequest extends FormRequest
             'full_name'         => ['required','string','max:255'],
             // simpler email validation that works in Laravel 12
             'email'             => ['required','email','max:255'],
-            'whatsapp_number'   => ['nullable','string','max:32','regex:/^\+?[0-9\s\-()]{6,}$/'],
-            'also_mailing_list' => ['required','boolean'],
+            'whatsapp'          => ['nullable','string','max:32','regex:/^\+?[0-9\s\-()]{6,}$/'],
+            'mailing_list'      => ['required','boolean'],
         ];
     }
 }
