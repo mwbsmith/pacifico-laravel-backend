@@ -33,6 +33,11 @@ class MessageController extends Controller
                 ->values()
                 ->all();
 
+            // Add the sender’s own email as well
+            if (filter_var($request->email, FILTER_VALIDATE_EMAIL)) {
+                $recipients[] = $request->email;
+            }
+
             // Send one email per recipient
             foreach ($recipients as $email) {
                 Mail::to($email)->send(new ContactMessage($message->fresh()));
