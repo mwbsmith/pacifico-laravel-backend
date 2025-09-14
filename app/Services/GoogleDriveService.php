@@ -37,14 +37,15 @@ class GoogleDriveService
         // IMPORTANT: do NOT add $onlyMime here; we must see folders & shortcuts too
         $params = [
             'q'                         => "'$folderId' in parents and trashed = false",
-            'fields'                    => 'nextPageToken,files(id,name,mimeType,size,createdTime,modifiedTime,parents,webViewLink,webContentLink,shortcutDetails(targetId,targetMimeType))',
+            // 👇 fetch EVERYTHING for each file
+            'fields'                    => 'nextPageToken,files(*)',
             'supportsAllDrives'         => true,
             'includeItemsFromAllDrives' => true,
             'pageSize'                  => 200,
         ];
 
         do {
-            $resp = $this->drive->files->listFiles($params);
+            $resp  = $this->drive->files->listFiles($params);
             $files = $resp->getFiles() ?? [];
 
             foreach ($files as $f) {
@@ -57,7 +58,7 @@ class GoogleDriveService
                     continue;
                 }
 
-                // 2) Shortcut → follow target
+                // 2) Shortcut → follow target (request all fields on target too)
                 if ($mime === 'application/vnd.google-apps.shortcut') {
                     $sd = $f->getShortcutDetails();
                     $targetId   = $sd?->getTargetId();
@@ -70,7 +71,7 @@ class GoogleDriveService
 
                     if ($targetId) {
                         $target = $this->drive->files->get($targetId, [
-                            'fields' => 'id,name,mimeType,size,createdTime,modifiedTime,parents,webViewLink,webContentLink',
+                            'fields'            => '*', // 👈 all fields for the single file
                             'supportsAllDrives' => true,
                         ]);
                         if (!$onlyMime || $target->getMimeType() === $onlyMime) {
@@ -90,21 +91,33 @@ class GoogleDriveService
         } while ($params['pageToken'] ?? null);
     }
 
-    /** Map Google file to array (adds a 'path' for UX). */
+    /** Safely convert any Google model to array (for 'raw'). */
+    private function asArray(mixed $obj): array
+    {
+        return json_decode(json_encode($obj), true) ?? [];
+    }
+
+    /** Map Google file to array (adds a 'path' for UX and returns a 'raw' blob with everything). */
     private function map(Google_Service_Drive_DriveFile $f, string $pathWithoutTrailing = ''): array
     {
         $id = $f->getId();
+
         return [
-            'id'            => $id,
-            'name'          => $f->getName(),
-            'path'          => $pathWithoutTrailing, // e.g. "Sub/Deeper/MyFile.pdf"
-            'mimeType'      => $f->getMimeType(),
-            'sizeBytes'     => $f->getSize() ? (int)$f->getSize() : null,
-            'createdTime'   => $f->getCreatedTime(),
-            'modifiedTime'  => $f->getModifiedTime(),
-            'webViewLink'   => $f->getWebViewLink(),
-            'webContentLink'=> $f->getWebContentLink(),
-            'directDownload'=> $f->getWebContentLink() ?: "https://drive.google.com/uc?id={$id}&export=download",
+            // Handy curated fields
+            'id'             => $id,
+            'name'           => $f->getName(),
+            'path'           => $pathWithoutTrailing, // e.g. "Sub/Deeper/MyFile.pdf"
+            'mimeType'       => $f->getMimeType(),
+            'sizeBytes'      => $f->getSize() ? (int) $f->getSize() : null,
+            'createdTime'    => $f->getCreatedTime(),
+            'modifiedTime'   => $f->getModifiedTime(),
+            'webViewLink'    => $f->getWebViewLink(),
+            'webContentLink' => $f->getWebContentLink(),
+            'directDownload' => $f->getWebContentLink() ?: "https://drive.google.com/uc?id={$id}&export=download",
+            'description'    => $f->getDescription(),
+
+            // EVERYTHING the Drive API returned for this file
+            // 'raw'            => $this->asArray($f),
         ];
     }
 }
