@@ -1,5 +1,5 @@
 <?php
-
+/*
 namespace App\Mail;
 
 use App\Models\Message;
@@ -26,5 +26,44 @@ class ContactMessage extends Mailable
                     ->with([
                         'messageData' => $this->messageData,
                     ]);
+    }
+}
+*/
+// app/Mail/ContactMessage.php
+namespace App\Mail;
+
+use Illuminate\Bus\Queueable;
+use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Mail\Mailables\Content;
+use Illuminate\Queue\SerializesModels;
+use App\Models\Message;
+
+class ContactMessage extends Mailable
+{
+    use Queueable, SerializesModels;
+
+    public function __construct(public Message $message) {}
+
+    public function envelope(): Envelope
+    {
+        return new Envelope(
+            subject: 'New contact message from website',
+            // ❌ DO NOT set: to: [...], cc: [...], bcc: [...]
+            // Let the controller provide recipients.
+        );
+    }
+
+    public function content(): Content
+    {
+        return new Content(
+            markdown: 'emails.contact', // or view: 'emails.contact'
+            with: ['messageModel' => $this->message],
+        );
+    }
+
+    public function attachments(): array
+    {
+        return [];
     }
 }
