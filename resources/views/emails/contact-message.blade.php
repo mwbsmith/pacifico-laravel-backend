@@ -71,7 +71,7 @@
 
         <div class="field">
             <div class="label">Sent At:</div>
-            <div class="value">{{ $messageData->sent_at->format('F j, Y \a\t g:i A') }}</div>
+            <div class="value">{{ optional($messageData->sent_at)->format('F j, Y \a\t g:i A') }}</div>
         </div>
     </div>
 
