@@ -33,7 +33,10 @@ class MessageController extends Controller
             */
             $recipientEmail = config('mail.contact_recipient', 'mwbsmith@gmail.com');
             $recipients = array_map('trim', explode(',', $recipientEmail));
-            Mail::to($recipients)->send(new ContactMessage($message));
+            foreach ($recipients as $email) {
+                Mail::to($email)->send(new ContactMessage($message));
+            }
+            // Mail::to($recipients)->send(new ContactMessage($message));
 
             return response()->json([
                 'success' => true,

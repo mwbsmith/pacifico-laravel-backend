@@ -32,13 +32,20 @@ class NewsletterSubscriptionController extends Controller
             'whatsapp'   => ['nullable', 'string', 'max:50'],
             'mailing_list'=> ['boolean'],
         ]);
-        
+
+        // Strip out the non-digits from the whatsapp number
+        $whatsapp = $validated['whatsapp'] ?? null;
+
+        if ($whatsapp) {
+            // keep only digits
+            $whatsapp = preg_replace('/\D/', '', $whatsapp);
+        }
 
         // map camelCase input to snake_case DB fields
         $subscription = NewsletterSubscription::create([
             'full_name'        => $validated['full_name'],
             'email'            => $validated['email'],
-            'whatsapp_number'  => $validated['whatsapp'] ?? null,
+            'whatsapp_number'  => $whatsapp,
             'also_mailing_list'=> $validated['mailing_list'] ?? false,
         ]);
 
