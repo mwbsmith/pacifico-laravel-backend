@@ -32,7 +32,7 @@ class MessageController extends Controller
                 ->filter(fn ($e) => $e !== '' && filter_var($e, FILTER_VALIDATE_EMAIL))
                 ->values()
                 ->all();
-
+                
             // Add the sender’s own email as well   
             if (filter_var($request->email, FILTER_VALIDATE_EMAIL)) {
                 $recipients[] = $request->email;
